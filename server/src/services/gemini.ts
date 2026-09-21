@@ -7,7 +7,28 @@ function getClient(): GoogleGenAI {
   return new GoogleGenAI({ apiKey });
 }
 
-const MODEL = 'gemini-3.6-flash';
+const MODELS = [
+  process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  'gemini-1.5-flash',
+  'gemini-2.0-flash',
+];
+
+async function generateWithFallback(ai: GoogleGenAI, prompt: string): Promise<string> {
+  let lastError: unknown = null;
+  for (const model of MODELS) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+      });
+      if (response.text) return response.text;
+    } catch (err) {
+      console.warn(`[Gemini] Model ${model} failed, trying next fallback...`);
+      lastError = err;
+    }
+  }
+  throw lastError;
+}
 
 export async function generateSubquestions(question: string): Promise<string[]> {
   const ai = getClient();
@@ -16,12 +37,7 @@ export async function generateSubquestions(question: string): Promise<string[]> 
 
 Research question: "${question}"`;
 
-  const response = await ai.models.generateContent({
-    model: MODEL,
-    contents: prompt,
-  });
-
-  const text = response.text ?? '';
+  const text = await generateWithFallback(ai, prompt);
   // Strip potential markdown code fences
   const cleaned = text.replace(/```json|```/g, '').trim();
 
@@ -81,12 +97,7 @@ ${sourcesText}
 
 Write the report now:`;
 
-  const response = await ai.models.generateContent({
-    model: MODEL,
-    contents: prompt,
-  });
-
-  const rawReport = response.text ?? 'Unable to generate report.';
+  const rawReport = await generateWithFallback(ai, prompt);
 
   // Post-process: strip any [N] citations where N is out of range
   return sanitizeCitations(rawReport, sources.length);
@@ -144,12 +155,8 @@ Sources:
 ${sourcesText}`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: MODEL,
-      contents: prompt,
-    });
-
-    const text = (response.text ?? '').replace(/```json|```/g, '').trim();
+    const rawText = await generateWithFallback(ai, prompt);
+    const text = rawText.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(text);
 
     if (!Array.isArray(parsed)) return [];
