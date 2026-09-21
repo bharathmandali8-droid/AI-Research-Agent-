@@ -8,23 +8,37 @@ function getClient(): GoogleGenAI {
 }
 
 const MODELS = [
-  process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+  'gemini-3.6-flash',
+  'gemini-2.5-flash',
   'gemini-1.5-flash',
-  'gemini-2.0-flash',
 ];
 
 async function generateWithFallback(ai: GoogleGenAI, prompt: string): Promise<string> {
   let lastError: unknown = null;
+
   for (const model of MODELS) {
-    try {
-      const response = await ai.models.generateContent({
-        model,
-        contents: prompt,
-      });
-      if (response.text) return response.text;
-    } catch (err) {
-      console.warn(`[Gemini] Model ${model} failed, trying next fallback...`);
-      lastError = err;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          contents: prompt,
+        });
+        if (response.text) return response.text;
+      } catch (err: any) {
+        lastError = err;
+        const errMsg = err?.message || String(err);
+        console.warn(`[Gemini] Model "${model}" attempt ${attempt} failed: ${errMsg}`);
+
+        // If 404 (model not found), don't retry this model — skip directly to next model
+        if (err?.status === 404 || errMsg.includes('404') || errMsg.includes('NOT_FOUND')) {
+          break;
+        }
+
+        // Wait before retrying on 503 or transient issues
+        if (attempt < 3) {
+          await new Promise((res) => setTimeout(res, 1500 * attempt));
+        }
+      }
     }
   }
   throw lastError;
