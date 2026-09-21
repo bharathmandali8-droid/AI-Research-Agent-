@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-09-21T08:33:55.333Z",
+  "server": "http://localhost:3001",
+  "summary": {
+    "total": 5,
+    "successful": 3,
+    "failures": 2,
+    "avgLatencyMs": 27133,
+    "minLatencyMs": 25677,
+    "maxLatencyMs": 28649,
+    "totalInvalidCitations": 0,
+    "totalContradictedClaims": 0,
+    "totalUnverifiedClaims": 0
+  },
+  "results": [
+    {
+      "question": "What are the current techniques used to reduce LLM hall…",
+      "status": "fail",
+      "latencyMs": 10419,
+      "sources": 0,
+      "citationAccuracy": "n/a",
+      "citationInvalid": 0,
+      "fcSupported": 0,
+      "fcContradicted": 0,
+      "fcUnverified": 0,
+      "fcTotal": 0,
+      "error": "HTTP 500: {\"error\":\"{\\\"error\\\":{\\\"code\\\":503,\\\"message\\\":\\\"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\\\",\\\"status\\\":\\\"UNAVAILABLE\\\"}}\"}"
+    },
+    {
+      "question": "How does retrieval-augmented generation (RAG) improve A…",
+      "status": "ok",
+      "latencyMs": 27072,
+      "sources": 0,
+      "citationAccuracy": "n/a",
+      "citationInvalid": 0,
+      "fcSupported": 0,
+      "fcContradicted": 0,
+      "fcUnverified": 0,
+      "fcTotal": 0,
+      "error": null
+    },
+    {
+      "question": "What are the main differences between transformer and d…",
+      "status": "ok",
+      "latencyMs": 28649,
+      "sources": 0,
+      "citationAccuracy": "n/a",
+      "citationInvalid": 0,
+      "fcSupported": 0,
+      "fcContradicted": 0,
+      "fcUnverified": 0,
+      "fcTotal": 0,
+      "error": null
+    },
+    {
+      "question": "What ethical challenges exist in deploying large langua…",
+      "status": "ok",
+      "latencyMs": 25677,
+      "sources": 0,
+      "citationAccuracy": "n/a",
+      "citationInvalid": 0,
+      "fcSupported": 0,
+      "fcContradicted": 0,
+      "fcUnverified": 0,
+      "fcTotal": 0,
+      "error": null
+    },
+    {
+      "question": "How is reinforcement learning from human feedback (RLHF…",
+      "status": "fail",
+      "latencyMs": 11148,
+      "sources": 0,
+      "citationAccuracy": "n/a",
+      "citationInvalid": 0,
+      "fcSupported": 0,
+      "fcContradicted": 0,
+      "fcUnverified": 0,
+      "fcTotal": 0,
+      "error": "HTTP 500: {\"error\":\"{\\\"error\\\":{\\\"code\\\":503,\\\"message\\\":\\\"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\\\",\\\"status\\\":\\\"UNAVAILABLE\\\"}}\"}"
+    }
+  ]
+}
