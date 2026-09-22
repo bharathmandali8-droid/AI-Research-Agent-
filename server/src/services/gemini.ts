@@ -8,9 +8,10 @@ function getClient(): GoogleGenAI {
 }
 
 const MODELS = [
-  'gemini-3.6-flash',
   'gemini-2.5-flash',
-  'gemini-1.5-flash',
+  'gemini-3.5-flash-lite',
+  'gemini-3.5-flash',
+  'gemini-flash-latest',
 ];
 
 async function generateWithFallback(ai: GoogleGenAI, prompt: string): Promise<string> {
@@ -29,14 +30,22 @@ async function generateWithFallback(ai: GoogleGenAI, prompt: string): Promise<st
         const errMsg = err?.message || String(err);
         console.warn(`[Gemini] Model "${model}" attempt ${attempt} failed: ${errMsg}`);
 
-        // If 404 (model not found), don't retry this model — skip directly to next model
-        if (err?.status === 404 || errMsg.includes('404') || errMsg.includes('NOT_FOUND')) {
+        // If 404 (model not found) or RESOURCE_EXHAUSTED (rate limit / quota), skip directly to next model
+        if (
+          err?.status === 404 ||
+          err?.status === 429 ||
+          errMsg.includes('404') ||
+          errMsg.includes('429') ||
+          errMsg.includes('NOT_FOUND') ||
+          errMsg.includes('RESOURCE_EXHAUSTED') ||
+          errMsg.includes('Quota exceeded')
+        ) {
           break;
         }
 
         // Wait before retrying on 503 or transient issues
         if (attempt < 3) {
-          await new Promise((res) => setTimeout(res, 1500 * attempt));
+          await new Promise((res) => setTimeout(res, 1000 * attempt));
         }
       }
     }
